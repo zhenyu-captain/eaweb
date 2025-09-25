@@ -1,0 +1,434 @@
+[
+  {
+    "question_number": "1",
+    "question_id": "758501951",
+    "topic": "Disciplinary Sanctions",
+    "question_text": "With regards to tax practitioner sanctions imposed by the Office of Professional Responsibility (OPR), what is a \"reprimand\"?",
+    "options": {
+      "A": "A private letter to a tax practitioner, stating their misconduct",
+      "B": "A small monetary penalty for misconduct",
+      "C": "A short suspension from practice",
+      "D": "A public announcement of misconduct"
+    },
+    "progress": {
+      "current": 1,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "2",
+    "question_id": "758501954",
+    "topic": "Disciplinary Sanctions",
+    "question_text": "Fadil is a tax attorney who is representing a client before the IRS. Which of the following actions during the course of an examination, would lead to an immediate referral and disciplinary action by the OPR?",
+    "options": {
+      "A": "Fadil made math errors on his client's tax return",
+      "B": "Fadil knowingly provides false information to the IRS examiner",
+      "C": "Fadil failed to file his own tax return on time",
+      "D": "Fadil is not a U.S. citizen, but he does have a current license to practice law"
+    },
+    "progress": {
+      "current": 2,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "3",
+    "question_id": "94850969",
+    "topic": "Disciplinary Sanctions",
+    "question_text": "Which of the following is specifically cited as conduct that could trigger sanctions against a tax preparer, according to Circular 230 §10.51?",
+    "options": {
+      "A": "Felony arrest for breach of trust.",
+      "B": "Conviction on a criminal offense charge.",
+      "C": "Felony arrest on a criminal offense charge.",
+      "D": "Parking tickets."
+    },
+    "progress": {
+      "current": 3,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "4",
+    "question_id": "758501952",
+    "topic": "Disciplinary Sanctions",
+    "question_text": "With regards to tax practitioner sanctions imposed by the Office of Professional Responsibility (OPR), how does a censure differ from a reprimand ?",
+    "options": {
+      "A": "A censure involves a monetary penalty, while a reprimand involves a suspension",
+      "B": "A censure is public, while a reprimand is private",
+      "C": "A censure usually results in a disbarment from practice, while a reprimand only results in a suspension.",
+      "D": "A censure usually results in suspension from practice, while a reprimand does not"
+    },
+    "progress": {
+      "current": 4,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "5",
+    "question_id": "94851009",
+    "topic": "Disciplinary Sanctions",
+    "question_text": "The Office of Professional Responsibility (OPR) is responsible for issuing Disciplinary Decisions against enrolled practitioners who have committed infractions. Where are these official decisions published?",
+    "options": {
+      "A": "Disciplinary Decisions are published in Circular 230.",
+      "B": "Disciplinary Decisions are published in the Congressional Record.",
+      "C": "Disciplinary Decisions are published in the Internal Revenue Manual.",
+      "D": "Disciplinary Decisions are published in the Internal Revenue Bulletin."
+    },
+    "progress": {
+      "current": 5,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "6",
+    "question_id": "94851121",
+    "topic": "Disciplinary Sanctions",
+    "question_text": "What is the type of IRS sanction that can result in limitations being placed on a practitioner’s ability to practice before the IRS, but does not in itself cause an individual to lose his eligibility to practice?",
+    "options": {
+      "A": "Censure.",
+      "B": "Disbarment.",
+      "C": "Reprimand.",
+      "D": "Suspension."
+    },
+    "progress": {
+      "current": 6,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "7",
+    "question_id": "94850992",
+    "topic": "Disciplinary Sanctions",
+    "question_text": "Which disciplinary action made by the IRS is not recorded in the Internal Revenue Bulletin?",
+    "options": {
+      "A": "Reprimand.",
+      "B": "Censure.",
+      "C": "Suspension.",
+      "D": "Disbarment."
+    },
+    "progress": {
+      "current": 7,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "8",
+    "question_id": "94850956",
+    "topic": "Disciplinary Sanctions",
+    "question_text": "Which of the following statements regarding disbarment is correct?",
+    "options": {
+      "A": "A practitioner is not liable for any preparer penalties if he diverts a portion of the refund to himself with the client’s permission.",
+      "B": "The IRS cannot disbar a practitioner without first seeking criminal prosecution through the Department of Justice.",
+      "C": "Even without bringing a criminal prosecution, the IRS can disbar a practitioner.",
+      "D": "The IRS can disbar a practitioner as long as a subsequent referral is made to the Department of Justice."
+    },
+    "progress": {
+      "current": 8,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "9",
+    "question_id": "758501953",
+    "topic": "Disciplinary Sanctions",
+    "question_text": "Which sanction results in a tax practitioner being ineligible to represent taxpayers before the IRS for a specific time period?",
+    "options": {
+      "A": "Monetary penalty",
+      "B": "Suspension",
+      "C": "Reprimand",
+      "D": "Censure"
+    },
+    "progress": {
+      "current": 9,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "10",
+    "question_id": "94851122",
+    "topic": "Disciplinary Sanctions",
+    "question_text": "The Office of Professional Responsibility (OPR) is responsible for disciplinary actions against unscrupulous tax preparers. OPR sanctions include:",
+    "options": {
+      "A": "Probation, suspension and dismissal.",
+      "B": "Verbal warning, first written warning, final written warning.",
+      "C": "A warning, reprimand, or prohibition.",
+      "D": "Censure, suspension or disbarment."
+    },
+    "progress": {
+      "current": 10,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "11",
+    "question_id": "94850976",
+    "topic": "Official Complaint Process and Response",
+    "question_text": "The Office of Professional Responsibility wants to serve a formal complaint alleging misconduct by an enrolled agent. The OPR will attempt to contact the EA in each of the following ways except:",
+    "options": {
+      "A": "By private delivery service.",
+      "B": "By certified mail.",
+      "C": "In person.",
+      "D": "By email."
+    },
+    "progress": {
+      "current": 11,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "12",
+    "question_id": "94851261",
+    "topic": "Official Complaint Process and Response",
+    "question_text": "Eugene owns a tax preparation firm and has three employees. He is having financial difficulties and failed to file quarterly employment tax returns during five of the last seven quarters. Under Circular 230, which of the following statements is correct?",
+    "options": {
+      "A": "The OPR can undertake expedited suspension procedures against Eugene.",
+      "B": "The OPR can undertake its normal disciplinary procedures against Eugene.",
+      "C": "Failure to file personal or employment tax returns is not grounds for the OPR to take disciplinary action against a practitioner.",
+      "D": "The OPR cannot undertake expedited suspension procedures against Eugene, because these procedures can be used only for failure to file federal income tax returns, and not for failure to file employment tax returns."
+    },
+    "progress": {
+      "current": 12,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "13",
+    "question_id": "94851043",
+    "topic": "Official Complaint Process and Response",
+    "question_text": "Odin is an administrative law judge who presided over a disbarment hearing of an enrolled agent, Frank, who is accused of tax fraud. How long does he have to render his decision about Frank's disbarment?",
+    "options": {
+      "A": "90 days.",
+      "B": "180 days.",
+      "C": "60 days.",
+      "D": "120 days."
+    },
+    "progress": {
+      "current": 13,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "14",
+    "question_id": "94850986",
+    "topic": "Official Complaint Process and Response",
+    "question_text": "Which of the following statements is correct regarding an official OPR complaint against a practitioner?",
+    "options": {
+      "A": "The duration must be specified only when a reprimand is recommended.",
+      "B": "The duration must be specified only when disbarment is recommended.",
+      "C": "If a suspension is sought, the duration must be specified.",
+      "D": "The duration of the suspension does not have to be specified."
+    },
+    "progress": {
+      "current": 14,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "15",
+    "question_id": "94850974",
+    "topic": "Official Complaint Process and Response",
+    "question_text": "Brysen is an enrolled agent. The OPR discovers he is submitting returns without a proper signature. OPR serves Brysen with a formal complaint of disreputable conduct. How long does Brysen have to respond to the complaint? (Choose the best answer)",
+    "options": {
+      "A": "He has 45 days to respond.",
+      "B": "He has at least 30 days to respond.",
+      "C": "He has 120 days to respond.",
+      "D": "He will have 90 days to respond."
+    },
+    "progress": {
+      "current": 15,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "16",
+    "question_id": "94850987",
+    "topic": "Official Complaint Process and Response",
+    "question_text": "The Office of Professional Responsibility served Vincent, an enrolled agent, with a formal complaint. Which of the following items is not required to be listed in the complaint?",
+    "options": {
+      "A": "The charges against Vincent.",
+      "B": "The unit and name of the employee of the IRS who recommended the action against Vincent.",
+      "C": "A demand for an answer to the charges.",
+      "D": "The specific sanctions that are recommended to be taken against Vincent."
+    },
+    "progress": {
+      "current": 16,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "17",
+    "question_id": "94851123",
+    "topic": "Official Complaint Process and Response",
+    "question_text": "Kristin is an enrolled agent who has been disbarred from practice before the IRS. She would like to petition for reinstatement of her license. How many years must she wait before petitioning for reinstatement?",
+    "options": {
+      "A": "Three years.",
+      "B": "Ten years.",
+      "C": "Five years.",
+      "D": "Never. Disbarment is always permanent."
+    },
+    "progress": {
+      "current": 17,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "18",
+    "question_id": "94851126",
+    "topic": "Official Complaint Process and Response",
+    "question_text": "Wilhelm, an enrolled agent, prepared a client’s tax return that contained a frivolous position. The tax return was later chosen for audit. The IRS examiner of the return made a referral to the Office of Professional Responsibility. After all procedural requirements have been met, who will decide on the appropriate sanction for Wilhelm?",
+    "options": {
+      "A": "The OPR.",
+      "B": "The IRS examination division.",
+      "C": "IRS legal counsel.",
+      "D": "An administrative law judge."
+    },
+    "progress": {
+      "current": 18,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "19",
+    "question_id": "94850980",
+    "topic": "Official Complaint Process and Response",
+    "question_text": "Which of the following statements regarding disbarment is correct?",
+    "options": {
+      "A": "A disbarred practitioner can petition for reinstatement after 15 years.",
+      "B": "A disbarred practitioner can petition for reinstatement after 10 years.",
+      "C": "A disbarred practitioner can never be reinstated.",
+      "D": "A disbarred practitioner can petition for reinstatement after five years."
+    },
+    "progress": {
+      "current": 19,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "20",
+    "question_id": "94850983",
+    "topic": "Official Complaint Process and Response",
+    "question_text": "What happens if a practitioner or his representative fails to appear at an IRS expedited suspension conference?",
+    "options": {
+      "A": "An administrative law judge will make a decision on sanctions by default within 30 days.",
+      "B": "The practitioner will be disbarred for life.",
+      "C": "The practitioner will be referred for criminal prosecution.",
+      "D": "The practitioner can be immediately suspended from practice before the IRS."
+    },
+    "progress": {
+      "current": 20,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "21",
+    "question_id": "94851045",
+    "topic": "Prohibited Actions During Suspension or Disbarment",
+    "question_text": "Jakob was an enrolled agent who was disbarred for misconduct. Which of the following actions is he still allowed to perform, even though he is disbarred from practice?",
+    "options": {
+      "A": "File powers of attorney with the IRS (Form 2848).",
+      "B": "Render written advice with respect to any entity, transaction, plan or arrangement, or other plan or arrangement having a potential for tax avoidance or evasion.",
+      "C": "Represent a client before the IRS at meetings or conferences.",
+      "D": "Appear before the IRS as the executor of his deceased father's estate."
+    },
+    "progress": {
+      "current": 21,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "22",
+    "question_id": "758501949",
+    "topic": "Prohibited Actions During Suspension or Disbarment",
+    "question_text": "Edward is an enrolled agent who was disbarred from practice this year. He has an existing client, Celestine, who is currently living overseas in France for several years. Celestine does not have a U.S. bank account any longer, and she has an IRS refund coming as a paper check. Can Edward receive Celestine's IRS refund check, and hold it for her?",
+    "options": {
+      "A": "Yes, Edward can receive the check, but NOT cash it. He can then forward the check to Celestine by mail or private delivery service.",
+      "B": "Yes, Edward can receive the check and cash it, then wire his client the money, as long as Celestine signs a power of attorney allowing him to do so.",
+      "C": "No, Edward cannot receive the check, or cash it.",
+      "D": "Yes, Edward can receive the check but NOT cash it, as long as Celestine signs a power of attorney allowing him to do so."
+    },
+    "progress": {
+      "current": 22,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "23",
+    "question_id": "758501950",
+    "topic": "Prohibited Actions During Suspension or Disbarment",
+    "question_text": "Clovis is an attorney who was stripped of his license and disbarred by his state licensing authority for felony wire fraud. Which of the following is NOT a prohibited action for Clovis to perform, even though his is currently disbarred?",
+    "options": {
+      "A": "Furnish information at the request of the IRS or any of its officers or employees",
+      "B": "Signing a tax return on behalf of a taxpayer",
+      "C": "Providing written advice on potential tax avoidance arrangements",
+      "D": "Signing waivers, consents, or closing agreements on behalf of a client"
+    },
+    "progress": {
+      "current": 23,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "24",
+    "question_id": "94851157",
+    "topic": "Prohibited Actions During Suspension or Disbarment",
+    "question_text": "Thaddeus is a CPA who was disbarred for criminal tax fraud. Which of the following taxpayers may he represent before the IRS?",
+    "options": {
+      "A": "Thaddeus may represent an estate if he was an attorney for the estate before he was disbarred.",
+      "B": "Thaddeus may represent an irrevocable trust as the trust's fiduciary.",
+      "C": "Thaddeus may represent a corporation if he filed the corporate return.",
+      "D": "Thaddeus may represent a client with a Trust Fund Recovery Penalty, as long as it is only related to payroll filings."
+    },
+    "progress": {
+      "current": 24,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "25",
+    "question_id": "758501948",
+    "topic": "Prohibited Actions During Suspension or Disbarment",
+    "question_text": "Larry is a CPA that was disbarred from practice by his state licensing authority because he was convicted of felony embezzlement after stealing from his employer. Despite being disbarred, which of the following actions is Larry still allowed to perform?",
+    "options": {
+      "A": "Larry can provide written tax advice on any arrangement or entity with the potential tax avoidance or evasion",
+      "B": "Larry can sign a tax return on behalf of a client who is currently overseas",
+      "C": "Larry can represent a client at an IRS hearing with a Form 2848, Power of Attorney",
+      "D": "Larry can appear as an executor, and represent his deceased mother's estate"
+    },
+    "progress": {
+      "current": 25,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "26",
+    "question_id": "94851124",
+    "topic": "Prohibited Actions During Suspension or Disbarment",
+    "question_text": "Fivel is an enrolled agent who is currently under suspension by the OPR. The suspension is for 24 months, and Fivel would like to continue working as a tax preparer during his suspension. Which of the following actions is Fivel NOT allowed to do during his period of suspension?",
+    "options": {
+      "A": "Furnish information at the request of the IRS or any of its officers or employees.",
+      "B": "Appear before the IRS as the executor of an estate.",
+      "C": "File powers of attorney with the IRS.",
+      "D": "Receive IRS information pursuant to a valid tax information authorization (Form 8821)."
+    },
+    "progress": {
+      "current": 26,
+      "total": 27
+    }
+  },
+  {
+    "question_number": "27",
+    "question_id": "94850963",
+    "topic": "Prohibited Actions During Suspension or Disbarment",
+    "question_text": "Esmerelda is an enrolled agent whose license was suspended for two years by the IRS for disreputable conduct. During her period of suspension, which of the following actions are prohibited for Esmerelda?",
+    "options": {
+      "A": "Furnishing information at the request of the IRS or any of its officers or employees.",
+      "B": "Representing a client before the IRS at a conference, hearing, or meeting.",
+      "C": "Representing herself before the IRS.",
+      "D": "Appearing as a witness for a taxpayer. Light Dark"
+    },
+    "progress": {
+      "current": null,
+      "total": null
+    }
+  }
+]
