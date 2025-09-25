@@ -1,0 +1,19 @@
+{
+  "userId": "test_user",
+  "lastUpdated": "2025-09-25T06:49:38.208Z",
+  "answers": {
+    "q1": "A"
+  },
+  "notes": {
+    "q1": "测试笔记"
+  },
+  "translations": {
+    "q1": "测试翻译"
+  },
+  "questionHighlights": {
+    "q1": []
+  },
+  "optionHighlights": {
+    "q1": []
+  }
+}

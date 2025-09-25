@@ -1,0 +1,34 @@
+{
+  "userId": "test_persistence",
+  "lastUpdated": "2025-09-25T06:55:03.681Z",
+  "answers": {
+    "q1": "A",
+    "q2": "B"
+  },
+  "notes": {
+    "q1": "更新的笔记1",
+    "q2": "更新的笔记2"
+  },
+  "translations": {
+    "q1": "翻译1",
+    "q2": "翻译2"
+  },
+  "questionHighlights": {
+    "q1": [
+      {
+        "id": 1,
+        "text": "高亮1",
+        "color": "yellow"
+      }
+    ]
+  },
+  "optionHighlights": {
+    "q1": [
+      {
+        "id": 2,
+        "text": "选项高亮",
+        "color": "green"
+      }
+    ]
+  }
+}

@@ -27,6 +27,8 @@ const translations = ref({})
 const currentTranslation = ref('')
 const translationHasChanges = ref(false)
 const showTranslation = ref(false)
+const serverStatus = ref('checking') // 'checking', 'online', 'offline'
+const serverError = ref('')
 
 // 计算属性
 const currentQuestion = computed(() => filteredQuestions.value[currentQuestionIndex.value])
@@ -83,119 +85,293 @@ const highlightedOptions = computed(() => {
 // 方法
 const loadQuestions = async () => {
   try {
+    console.log('开始加载题目数据...')
     const response = await fetch('/db/all_questions.json')
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    console.log('数据请求成功，开始解析JSON...')
     const data = await response.json()
+    console.log('JSON解析成功，数据:', data)
+    
     questions.value = data.questions || []
     metadata.value = data.metadata || {}
     // 初始化时显示所有题目
     filteredQuestions.value = questions.value
+    
+    console.log(`成功加载 ${questions.value.length} 道题目`)
+    
     // 加载保存的数据
-    loadHighlights()
-    loadAnswers()
-    loadNotes()
-    loadTranslations()
+    await loadHighlights()
+    await loadAnswers()
+    await loadNotes()
+    await loadTranslations()
     
     // 加载当前题目的笔记和翻译
     setTimeout(() => {
       loadCurrentNote()
       loadCurrentTranslation()
+      
+      // 调试：检查当前题目的数据
+      const currentQ = currentQuestion.value
+      if (currentQ) {
+        console.log('🔍 当前题目数据检查:', {
+          questionId: currentQ.question_id,
+          hasNote: !!userNotes.value[currentQ.question_id],
+          hasTranslation: !!translations.value[currentQ.question_id],
+          hasQuestionHighlights: !!questionHighlights.value[currentQ.question_id],
+          hasOptionHighlights: !!optionHighlights.value[currentQ.question_id],
+          noteContent: userNotes.value[currentQ.question_id],
+          translationContent: translations.value[currentQ.question_id]
+        })
+      }
     }, 100)
   } catch (error) {
     console.error('加载题目失败:', error)
+    console.error('错误详情:', {
+      message: error.message,
+      stack: error.stack,
+      url: '/db/all_questions.json'
+    })
+  }
+}
+
+// 服务器API调用
+const API_BASE = import.meta.env.DEV 
+  ? 'http://localhost:3001/api' 
+  : '/api'
+
+// 检查服务器状态
+const checkServerStatus = async () => {
+  try {
+    serverStatus.value = 'checking'
+    const response = await fetch(`${API_BASE}/health`, {
+      method: 'GET',
+      timeout: 5000
+    })
+    
+    if (response.ok) {
+      serverStatus.value = 'online'
+      serverError.value = ''
+      console.log('✅ 后端服务器连接正常')
+    } else {
+      serverStatus.value = 'offline'
+      serverError.value = `服务器响应错误: ${response.status}`
+      console.error('❌ 后端服务器响应错误:', response.status)
+    }
+  } catch (error) {
+    serverStatus.value = 'offline'
+    serverError.value = error.message
+    console.error('❌ 后端服务器连接失败:', error.message)
+  }
+}
+
+// 服务器API调用方法
+const saveToServer = async (data) => {
+  try {
+    const response = await fetch(`${API_BASE}/save-data`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: 'default_user',
+        data: data
+      })
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const result = await response.json()
+    console.log('数据保存到服务器成功:', result)
+    return true
+  } catch (error) {
+    console.error('保存到服务器失败:', error)
+    return false
+  }
+}
+
+const loadFromServer = async () => {
+  try {
+    console.log('🔄 开始从服务器加载数据...')
+    const response = await fetch(`${API_BASE}/get-data/default_user`)
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const result = await response.json()
+    console.log('✅ 从服务器加载数据成功:', {
+      userId: result.data?.userId,
+      lastUpdated: result.data?.lastUpdated,
+      answersCount: Object.keys(result.data?.answers || {}).length,
+      notesCount: Object.keys(result.data?.notes || {}).length,
+      translationsCount: Object.keys(result.data?.translations || {}).length,
+      questionHighlightsCount: Object.keys(result.data?.questionHighlights || {}).length,
+      optionHighlightsCount: Object.keys(result.data?.optionHighlights || {}).length
+    })
+    return result.data
+  } catch (error) {
+    console.error('❌ 从服务器加载失败:', error)
+    return null
+  }
+}
+
+// 统一保存所有数据的方法
+const saveAllData = async () => {
+  const data = {
+    answers: answers.value,
+    notes: userNotes.value,
+    translations: translations.value,
+    questionHighlights: questionHighlights.value,
+    optionHighlights: optionHighlights.value
+  }
+  
+  console.log('🔄 开始保存数据到服务器...', {
+    answersCount: Object.keys(data.answers).length,
+    notesCount: Object.keys(data.notes).length,
+    translationsCount: Object.keys(data.translations).length,
+    questionHighlightsCount: Object.keys(data.questionHighlights).length,
+    optionHighlightsCount: Object.keys(data.optionHighlights).length
+  })
+  
+  const serverSaved = await saveToServer(data)
+  if (serverSaved) {
+    console.log('✅ 数据已保存到服务器')
+  } else {
+    console.log('⚠️ 服务器保存失败，回退到localStorage')
+    // 回退到localStorage
+    localStorage.setItem('quiz-answers', JSON.stringify(answers.value))
+    localStorage.setItem('quiz-notes', JSON.stringify(userNotes.value))
+    localStorage.setItem('quiz-translations', JSON.stringify(translations.value))
+    localStorage.setItem('quiz-question-highlights', JSON.stringify(questionHighlights.value))
+    localStorage.setItem('quiz-option-highlights', JSON.stringify(optionHighlights.value))
+    console.log('✅ 数据已保存到localStorage')
   }
 }
 
 // 数据持久化功能
-const saveHighlights = () => {
-  localStorage.setItem('quiz-question-highlights', JSON.stringify(questionHighlights.value))
-  localStorage.setItem('quiz-option-highlights', JSON.stringify(optionHighlights.value))
+const saveHighlights = async () => {
+  await saveAllData()
 }
 
-const loadHighlights = () => {
-  const savedQuestion = localStorage.getItem('quiz-question-highlights')
-  const savedOption = localStorage.getItem('quiz-option-highlights')
-  
-  if (savedQuestion) {
-    try {
-      questionHighlights.value = JSON.parse(savedQuestion)
-    } catch (error) {
-      console.error('加载题目高亮数据失败:', error)
-      questionHighlights.value = {}
+const loadHighlights = async () => {
+  const serverData = await loadFromServer()
+  if (serverData) {
+    questionHighlights.value = serverData.questionHighlights || {}
+    optionHighlights.value = serverData.optionHighlights || {}
+  } else {
+    // 回退到localStorage
+    const savedQuestion = localStorage.getItem('quiz-question-highlights')
+    const savedOption = localStorage.getItem('quiz-option-highlights')
+    
+    if (savedQuestion) {
+      try {
+        questionHighlights.value = JSON.parse(savedQuestion)
+      } catch (error) {
+        console.error('加载题目高亮数据失败:', error)
+        questionHighlights.value = {}
+      }
+    }
+    
+    if (savedOption) {
+      try {
+        optionHighlights.value = JSON.parse(savedOption)
+      } catch (error) {
+        console.error('加载选项高亮数据失败:', error)
+        optionHighlights.value = {}
+      }
     }
   }
-  
-  if (savedOption) {
-    try {
-      optionHighlights.value = JSON.parse(savedOption)
-    } catch (error) {
-      console.error('加载选项高亮数据失败:', error)
-      optionHighlights.value = {}
-    }
-  }
 }
 
-const saveAnswers = () => {
-  localStorage.setItem('quiz-answers', JSON.stringify(answers.value))
+const saveAnswers = async () => {
+  await saveAllData()
 }
 
-const loadAnswers = () => {
-  const saved = localStorage.getItem('quiz-answers')
-  console.log('从localStorage加载答案:', saved)
-  if (saved) {
-    try {
-      answers.value = JSON.parse(saved)
-      console.log('答案加载成功:', answers.value)
-    } catch (error) {
-      console.error('加载答案数据失败:', error)
+const loadAnswers = async () => {
+  const serverData = await loadFromServer()
+  if (serverData) {
+    answers.value = serverData.answers || {}
+    console.log('从服务器加载答案成功:', answers.value)
+  } else {
+    // 回退到localStorage
+    const saved = localStorage.getItem('quiz-answers')
+    console.log('从localStorage加载答案:', saved)
+    if (saved) {
+      try {
+        answers.value = JSON.parse(saved)
+        console.log('答案加载成功:', answers.value)
+      } catch (error) {
+        console.error('加载答案数据失败:', error)
+        answers.value = {}
+      }
+    } else {
+      console.log('没有找到保存的答案数据')
       answers.value = {}
     }
-  } else {
-    console.log('没有找到保存的答案数据')
-    answers.value = {}
   }
 }
 
-const saveNotes = () => {
-  localStorage.setItem('quiz-notes', JSON.stringify(userNotes.value))
-  console.log('笔记已保存到localStorage:', userNotes.value)
+const saveNotes = async () => {
+  await saveAllData()
+  console.log('笔记已保存:', userNotes.value)
 }
 
-const loadNotes = () => {
-  const saved = localStorage.getItem('quiz-notes')
-  console.log('从localStorage加载笔记:', saved)
-  if (saved) {
-    try {
-      userNotes.value = JSON.parse(saved)
-      console.log('笔记加载成功:', userNotes.value)
-    } catch (error) {
-      console.error('加载笔记数据失败:', error)
+const loadNotes = async () => {
+  const serverData = await loadFromServer()
+  if (serverData) {
+    userNotes.value = serverData.notes || {}
+    console.log('从服务器加载笔记成功:', userNotes.value)
+  } else {
+    // 回退到localStorage
+    const saved = localStorage.getItem('quiz-notes')
+    console.log('从localStorage加载笔记:', saved)
+    if (saved) {
+      try {
+        userNotes.value = JSON.parse(saved)
+        console.log('笔记加载成功:', userNotes.value)
+      } catch (error) {
+        console.error('加载笔记数据失败:', error)
+        userNotes.value = {}
+      }
+    } else {
+      console.log('没有找到保存的笔记数据')
       userNotes.value = {}
     }
-  } else {
-    console.log('没有找到保存的笔记数据')
-    userNotes.value = {}
   }
 }
 
-const saveTranslations = () => {
-  localStorage.setItem('quiz-translations', JSON.stringify(translations.value))
-  console.log('翻译已保存到localStorage:', translations.value)
+const saveTranslations = async () => {
+  await saveAllData()
+  console.log('翻译已保存:', translations.value)
 }
 
-const loadTranslations = () => {
-  const saved = localStorage.getItem('quiz-translations')
-  console.log('从localStorage加载翻译:', saved)
-  if (saved) {
-    try {
-      translations.value = JSON.parse(saved)
-      console.log('翻译加载成功:', translations.value)
-    } catch (error) {
-      console.error('加载翻译数据失败:', error)
+const loadTranslations = async () => {
+  const serverData = await loadFromServer()
+  if (serverData) {
+    translations.value = serverData.translations || {}
+    console.log('从服务器加载翻译成功:', translations.value)
+  } else {
+    // 回退到localStorage
+    const saved = localStorage.getItem('quiz-translations')
+    console.log('从localStorage加载翻译:', saved)
+    if (saved) {
+      try {
+        translations.value = JSON.parse(saved)
+        console.log('翻译加载成功:', translations.value)
+      } catch (error) {
+        console.error('加载翻译数据失败:', error)
+        translations.value = {}
+      }
+    } else {
+      console.log('没有找到保存的翻译数据')
       translations.value = {}
     }
-  } else {
-    console.log('没有找到保存的翻译数据')
-    translations.value = {}
   }
 }
 
@@ -325,7 +501,7 @@ const handleTextSelection = (event) => {
   }
 }
 
-const addHighlight = (color) => {
+const addHighlight = async (color) => {
   if (!selectedText.value) return
   
   const questionId = currentQuestion.value?.question_id
@@ -352,8 +528,8 @@ const addHighlight = (color) => {
     console.log('添加选项高亮:', highlight)
   }
   
-  // 保存到本地存储
-  saveHighlights()
+  // 保存数据（会尝试服务器，失败则回退到localStorage）
+  await saveHighlights()
   
   // 清除选择
   window.getSelection().removeAllRanges()
@@ -361,13 +537,13 @@ const addHighlight = (color) => {
   selectedText.value = ''
 }
 
-const removeHighlight = (questionId, highlightId, type) => {
+const removeHighlight = async (questionId, highlightId, type) => {
   if (type === 'question' && questionHighlights.value[questionId]) {
     questionHighlights.value[questionId] = questionHighlights.value[questionId].filter(h => h.id !== highlightId)
   } else if (type === 'option' && optionHighlights.value[questionId]) {
     optionHighlights.value[questionId] = optionHighlights.value[questionId].filter(h => h.id !== highlightId)
   }
-  saveHighlights()
+  await saveHighlights()
 }
 
 const getHighlightedText = (text, type) => {
@@ -414,7 +590,7 @@ const getTextColor = (color) => {
   return textColorMap[color] || '#000'
 }
 
-const clearAllHighlights = (type) => {
+const clearAllHighlights = async (type) => {
   const questionId = currentQuestion.value?.question_id
   if (!questionId) return
   
@@ -423,7 +599,7 @@ const clearAllHighlights = (type) => {
   } else if (type === 'option' && optionHighlights.value[questionId]) {
     optionHighlights.value[questionId] = []
   }
-  saveHighlights()
+  await saveHighlights()
 }
 
 // 笔记相关方法
@@ -431,12 +607,12 @@ const updateNote = () => {
   noteHasChanges.value = true
 }
 
-const saveNote = () => {
+const saveNote = async () => {
   const questionId = currentQuestion.value?.question_id
   if (!questionId) return
   
   userNotes.value[questionId] = currentNote.value
-  saveNotes()
+  await saveNotes()
   noteHasChanges.value = false
   console.log('笔记已保存:', { questionId, note: currentNote.value })
 }
@@ -470,12 +646,12 @@ const updateTranslation = () => {
   translationHasChanges.value = true
 }
 
-const saveTranslation = () => {
+const saveTranslation = async () => {
   const questionId = currentQuestion.value?.question_id
   if (!questionId) return
   
   translations.value[questionId] = currentTranslation.value
-  saveTranslations()
+  await saveTranslations()
   translationHasChanges.value = false
   console.log('翻译已保存:', { questionId, translation: currentTranslation.value })
 }
@@ -505,8 +681,12 @@ const loadCurrentTranslation = () => {
 }
 
 // 生命周期
-onMounted(() => {
-  loadQuestions()
+onMounted(async () => {
+  // 首先检查服务器状态
+  await checkServerStatus()
+  
+  // 然后加载题目
+  await loadQuestions()
   
   // 页面离开时自动保存笔记和翻译
   window.addEventListener('beforeunload', () => {
@@ -517,6 +697,9 @@ onMounted(() => {
       saveTranslation()
     }
   })
+  
+  // 定期检查服务器状态（每30秒）
+  setInterval(checkServerStatus, 30000)
 })
 </script>
 
@@ -527,18 +710,32 @@ onMounted(() => {
       <div class="header-controls">
         <div class="filter-controls">
           <button class="filter-toggle-btn" @click="showFilters = !showFilters">
-            {{ showFilters ? '隐藏' : '显示' }}分类筛选
+            {{ showFilters ? 'Hide' : 'Show' }} Filters
           </button>
           <span class="filter-status" v-if="selectedPart || selectedSection || selectedTopic">
-            已筛选: {{ filteredQuestionsCount }} 题
+            Filtered: {{ filteredQuestionsCount }} questions
           </span>
         </div>
         <div class="translation-controls">
           <button class="translation-toggle-btn" @click="showTranslation = !showTranslation">
-            {{ showTranslation ? '隐藏' : '显示' }}中文翻译
+            {{ showTranslation ? 'Hide' : 'Show' }} Analysis
           </button>
           <span class="translation-status" v-if="currentTranslation">
-            已翻译
+            Analyzed
+          </span>
+        </div>
+        <div class="server-status">
+          <span 
+            class="status-indicator" 
+            :class="{
+              'status-checking': serverStatus === 'checking',
+              'status-online': serverStatus === 'online',
+              'status-offline': serverStatus === 'offline'
+            }"
+            :title="serverError || '服务器状态'"
+          >
+            {{ serverStatus === 'checking' ? '🔄' : serverStatus === 'online' ? '✅' : '❌' }}
+            {{ serverStatus === 'checking' ? 'Checking' : serverStatus === 'online' ? 'Server Online' : 'Server Offline' }}
           </span>
         </div>
       </div>
@@ -547,12 +744,12 @@ onMounted(() => {
 
     <!-- 分类筛选面板 -->
     <div class="filter-panel" v-if="showFilters">
-      <h3>题目分类筛选</h3>
+      <h3>Question Filter</h3>
       <div class="filter-options">
         <div class="filter-group">
-          <label for="part-select">考试部分:</label>
+          <label for="part-select">Exam Part:</label>
           <select id="part-select" v-model="selectedPart" @change="onPartChange">
-            <option value="">全部部分</option>
+            <option value="">All Parts</option>
             <option v-for="part in availableParts" :key="part" :value="part">
               {{ part }}
             </option>
@@ -560,9 +757,9 @@ onMounted(() => {
         </div>
         
         <div class="filter-group">
-          <label for="section-select">章节:</label>
+          <label for="section-select">Section:</label>
           <select id="section-select" v-model="selectedSection" @change="onSectionChange" :disabled="!selectedPart">
-            <option value="">全部章节</option>
+            <option value="">All Sections</option>
             <option v-for="section in availableSections" :key="section" :value="section">
               {{ section }}
             </option>
@@ -570,9 +767,9 @@ onMounted(() => {
         </div>
         
         <div class="filter-group">
-          <label for="topic-select">主题:</label>
+          <label for="topic-select">Topic:</label>
           <select id="topic-select" v-model="selectedTopic" @change="applyFilters" :disabled="!selectedPart || !selectedSection">
-            <option value="">全部主题</option>
+            <option value="">All Topics</option>
             <option v-for="topic in availableTopics" :key="topic" :value="topic">
               {{ topic }}
             </option>
@@ -580,23 +777,23 @@ onMounted(() => {
         </div>
         
         <div class="filter-actions">
-          <button class="apply-filter-btn" @click="applyFilters">应用筛选</button>
-          <button class="clear-filter-btn" @click="clearFilters">清除筛选</button>
+          <button class="apply-filter-btn" @click="applyFilters">Apply Filter</button>
+          <button class="clear-filter-btn" @click="clearFilters">Clear Filter</button>
         </div>
       </div>
       
       <div class="filter-stats">
-        <p>总题目数: {{ questions.length }}</p>
-        <p>筛选后题目数: {{ filteredQuestionsCount }}</p>
-        <p v-if="selectedPart">当前部分: {{ selectedPart }}</p>
-        <p v-if="selectedSection">当前章节: {{ selectedSection }}</p>
-        <p v-if="selectedTopic">当前主题: {{ selectedTopic }}</p>
+        <p>Total Questions: {{ questions.length }}</p>
+        <p>Filtered Questions: {{ filteredQuestionsCount }}</p>
+        <p v-if="selectedPart">Current Part: {{ selectedPart }}</p>
+        <p v-if="selectedSection">Current Section: {{ selectedSection }}</p>
+        <p v-if="selectedTopic">Current Topic: {{ selectedTopic }}</p>
         <div class="filter-level-indicator">
-          <span class="level-badge" :class="{ active: selectedPart }">部分</span>
+          <span class="level-badge" :class="{ active: selectedPart }">Part</span>
           <span class="level-arrow">→</span>
-          <span class="level-badge" :class="{ active: selectedSection }">章节</span>
+          <span class="level-badge" :class="{ active: selectedSection }">Section</span>
           <span class="level-arrow">→</span>
-          <span class="level-badge" :class="{ active: selectedTopic }">主题</span>
+          <span class="level-badge" :class="{ active: selectedTopic }">Topic</span>
         </div>
       </div>
     </div>
@@ -606,8 +803,8 @@ onMounted(() => {
       <!-- 左侧题目导航 -->
       <aside class="question-nav-sidebar">
         <div class="nav-header">
-          <h3>题目导航</h3>
-          <span class="nav-count">{{ filteredQuestionsCount }} 题</span>
+          <h3>Question Navigation</h3>
+          <span class="nav-count">{{ filteredQuestionsCount }} questions</span>
         </div>
         <div class="question-list">
           <button 
@@ -623,7 +820,7 @@ onMounted(() => {
             {{ index + 1 }}
           </button>
           <div v-if="filteredQuestionsCount > 100" class="nav-more">
-            <span>还有 {{ filteredQuestionsCount - 100 }} 题...</span>
+            <span>{{ filteredQuestionsCount - 100 }} more questions...</span>
           </div>
         </div>
       </aside>
@@ -633,7 +830,7 @@ onMounted(() => {
         <!-- 题目信息 -->
         <div class="question-header">
           <div class="question-meta">
-            <span class="question-number">第 {{ currentQuestion.question_number }} 题</span>
+            <span class="question-number">Question {{ currentQuestion.question_number }}</span>
             <span class="question-topic">{{ currentQuestion.topic }}</span>
             <span class="question-part" v-if="currentQuestion.source_part">{{ currentQuestion.source_part }}</span>
           </div>
@@ -656,7 +853,7 @@ onMounted(() => {
             <div class="highlight-toolbar" v-if="showHighlightToolbar">
               <div class="toolbar-content">
                 <span class="selected-text">
-                  {{ highlightType === 'question' ? '题目' : '选项' }}高亮: "{{ selectedText }}"
+                  {{ highlightType === 'question' ? 'Question' : 'Option' }} Highlight: "{{ selectedText }}"
                 </span>
                 <div class="color-options">
                   <button 
@@ -665,10 +862,10 @@ onMounted(() => {
                     class="color-btn"
                     :class="`color-${color}`"
                     @click="addHighlight(color)"
-                    :title="`标记为${color}色`"
+                    :title="`Mark as ${color}`"
                   ></button>
                 </div>
-                <button class="cancel-highlight" @click="showHighlightToolbar = false">取消</button>
+                <button class="cancel-highlight" @click="showHighlightToolbar = false">Cancel</button>
               </div>
             </div>
           </div>
@@ -694,8 +891,8 @@ onMounted(() => {
           <!-- 题目高亮管理 -->
           <div class="highlight-management" v-if="questionHighlights[currentQuestion?.question_id]?.length > 0">
             <div class="highlight-header">
-              <h4>题目高亮标记</h4>
-              <button class="clear-highlights-btn" @click="clearAllHighlights('question')">清除题目高亮</button>
+              <h4>Question Highlights</h4>
+              <button class="clear-highlights-btn" @click="clearAllHighlights('question')">Clear Question Highlights</button>
             </div>
             <div class="highlight-list">
               <div 
@@ -716,8 +913,8 @@ onMounted(() => {
           <!-- 选项高亮管理 -->
           <div class="highlight-management" v-if="optionHighlights[currentQuestion?.question_id]?.length > 0">
             <div class="highlight-header">
-              <h4>选项高亮标记</h4>
-              <button class="clear-highlights-btn" @click="clearAllHighlights('option')">清除选项高亮</button>
+              <h4>Option Highlights</h4>
+              <button class="clear-highlights-btn" @click="clearAllHighlights('option')">Clear Option Highlights</button>
             </div>
             <div class="highlight-list">
               <div 
@@ -739,7 +936,7 @@ onMounted(() => {
         <!-- 用户笔记区域 -->
         <div class="notes-section">
           <div class="notes-header">
-            <h4>学习笔记</h4>
+            <h4>Study Notes</h4>
             <div class="notes-actions">
               <button 
                 class="save-note-btn" 
@@ -747,23 +944,23 @@ onMounted(() => {
                 :disabled="!noteHasChanges"
                 :class="{ 'has-changes': noteHasChanges }"
               >
-                {{ noteHasChanges ? '保存笔记' : '已保存' }}
+                {{ noteHasChanges ? 'Save Notes' : 'Saved' }}
               </button>
-              <button class="clear-note-btn" @click="clearNote" v-if="currentNote">清除笔记</button>
-              <span class="note-count" v-if="currentNote">{{ currentNote.length }} 字符</span>
+              <button class="clear-note-btn" @click="clearNote" v-if="currentNote">Clear Notes</button>
+              <span class="note-count" v-if="currentNote">{{ currentNote.length }} characters</span>
             </div>
           </div>
           <div class="notes-input-container">
             <textarea
               v-model="currentNote"
               @input="updateNote"
-              placeholder="在这里记录你的学习笔记、思考过程或重要提醒..."
+              placeholder="Record your study notes, thought process, or important reminders here..."
               class="notes-textarea"
               rows="6"
             ></textarea>
           </div>
           <div class="notes-tips">
-            <small>💡 提示：编辑笔记后请点击"保存笔记"按钮，切换题目时会保持每道题的独立笔记</small>
+            <small>💡 Tip: Click "Save Notes" after editing. Each question maintains independent notes when switching.</small>
           </div>
         </div>
 
@@ -774,7 +971,7 @@ onMounted(() => {
             @click="previousQuestion"
             :disabled="!canGoPrevious"
           >
-            上一题
+            Previous
           </button>
           
           <button 
@@ -782,7 +979,7 @@ onMounted(() => {
             @click="nextQuestion"
             :disabled="!canGoNext"
           >
-            下一题
+            Next
           </button>
         </div>
       </main>
@@ -791,28 +988,28 @@ onMounted(() => {
 
     <!-- 完成页面 -->
     <div class="completion-page" v-if="isQuizComplete">
-      <h2>考试完成！</h2>
+      <h2>Quiz Completed!</h2>
       <div class="completion-stats">
-        <p>当前筛选题目数: {{ filteredQuestionsCount }}</p>
-        <p>已答题数: {{ Object.keys(answers).length }}</p>
-        <p>完成率: {{ Math.round((Object.keys(answers).length / filteredQuestionsCount) * 100) }}%</p>
-        <p v-if="selectedPart">考试部分: {{ selectedPart }}</p>
-        <p v-if="selectedSection">章节: {{ selectedSection }}</p>
-        <p v-if="selectedTopic">主题: {{ selectedTopic }}</p>
+        <p>Filtered Questions: {{ filteredQuestionsCount }}</p>
+        <p>Answered Questions: {{ Object.keys(answers).length }}</p>
+        <p>Completion Rate: {{ Math.round((Object.keys(answers).length / filteredQuestionsCount) * 100) }}%</p>
+        <p v-if="selectedPart">Exam Part: {{ selectedPart }}</p>
+        <p v-if="selectedSection">Section: {{ selectedSection }}</p>
+        <p v-if="selectedTopic">Topic: {{ selectedTopic }}</p>
       </div>
-      <button class="reset-btn" @click="resetQuiz">重新开始</button>
+      <button class="reset-btn" @click="resetQuiz">Start Over</button>
     </div>
 
     <!-- 加载状态 -->
     <div class="loading" v-if="questions.length === 0">
-      <p>正在加载题目...</p>
+      <p>Loading questions...</p>
     </div>
 
     <!-- 翻译弹窗 -->
     <div class="translation-modal" v-if="showTranslation" @click.self="showTranslation = false">
       <div class="translation-modal-content">
         <div class="translation-modal-header">
-          <h3>中文翻译</h3>
+          <h3>Question Analysis</h3>
           <button class="close-btn" @click="showTranslation = false">×</button>
         </div>
         <div class="translation-modal-body">
@@ -823,23 +1020,23 @@ onMounted(() => {
               :disabled="!translationHasChanges"
               :class="{ 'has-changes': translationHasChanges }"
             >
-              {{ translationHasChanges ? '保存翻译' : '已保存' }}
+              {{ translationHasChanges ? 'Save Analysis' : 'Saved' }}
             </button>
-            <button class="clear-translation-btn" @click="clearTranslation" v-if="currentTranslation">清除翻译</button>
-            <span class="translation-count" v-if="currentTranslation">{{ currentTranslation.length }} 字符</span>
+            <button class="clear-translation-btn" @click="clearTranslation" v-if="currentTranslation">Clear Analysis</button>
+            <span class="translation-count" v-if="currentTranslation">{{ currentTranslation.length }} characters</span>
           </div>
           <div class="translation-section">
-            <h4>题目翻译</h4>
+            <h4>Question Analysis</h4>
             <textarea
               v-model="currentTranslation"
               @input="updateTranslation"
-              placeholder="在这里输入题目的中文翻译..."
+              placeholder="Enter your analysis of the question here..."
               class="translation-textarea"
               rows="12"
             ></textarea>
           </div>
           <div class="translation-tips">
-            <small>💡 提示：翻译会自动保存，切换题目时会保持每道题的独立翻译</small>
+            <small>💡 Tip: Analysis is auto-saved. Each question maintains independent analysis when switching.</small>
           </div>
         </div>
       </div>
@@ -875,7 +1072,7 @@ onMounted(() => {
   gap: 20px;
 }
 
-.filter-controls, .translation-controls {
+.filter-controls, .translation-controls, .server-status {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -905,6 +1102,33 @@ onMounted(() => {
   border-radius: 4px;
   font-size: 0.8em;
   font-weight: 500;
+}
+
+.status-indicator {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  font-weight: 500;
+  cursor: help;
+  transition: all 0.3s ease;
+}
+
+.status-checking {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.status-online {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-offline {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
 
 .quiz-header h1 {
@@ -1322,8 +1546,8 @@ onMounted(() => {
   background: white;
   border-radius: 15px;
   width: 95%;
-  max-width: 800px;
-  max-height: 85vh;
+  max-width: 1000px;
+  max-height: 90vh;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   display: flex;
@@ -1479,7 +1703,7 @@ onMounted(() => {
   line-height: 1.6;
   font-family: inherit;
   resize: vertical;
-  min-height: 300px;
+  min-height: 400px;
   transition: border-color 0.3s ease;
   background: white;
 }

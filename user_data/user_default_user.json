@@ -1,0 +1,29 @@
+{
+  "userId": "default_user",
+  "lastUpdated": "2025-09-25T08:17:00.574Z",
+  "answers": {
+    "758501951": "D"
+  },
+  "notes": {
+    "94850128": "1111",
+    "758501951": ""
+  },
+  "translations": {
+    "94850128": "2222",
+    "758501951": ""
+  },
+  "questionHighlights": {
+    "94850128": [
+      {
+        "id": 1758788214365,
+        "text": "liability",
+        "color": "green",
+        "timestamp": "2025-09-25T08:16:54.365Z"
+      }
+    ],
+    "758501951": []
+  },
+  "optionHighlights": {
+    "758501951": []
+  }
+}
