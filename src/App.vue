@@ -118,24 +118,22 @@ const loadQuestions = async () => {
     await loadTranslations()
     
     // 加载当前题目的笔记和翻译
-    setTimeout(() => {
-      loadCurrentNote()
-      loadCurrentTranslation()
-      
-      // 调试：检查当前题目的数据
-      const currentQ = currentQuestion.value
-      if (currentQ) {
-        console.log('🔍 当前题目数据检查:', {
-          questionId: currentQ.question_id,
-          hasNote: !!userNotes.value[currentQ.question_id],
-          hasTranslation: !!translations.value[currentQ.question_id],
-          hasQuestionHighlights: !!questionHighlights.value[currentQ.question_id],
-          hasOptionHighlights: !!optionHighlights.value[currentQ.question_id],
-          noteContent: userNotes.value[currentQ.question_id],
-          translationContent: translations.value[currentQ.question_id]
-        })
-      }
-    }, 100)
+    loadCurrentNote()
+    loadCurrentTranslation()
+    
+    // 调试：检查当前题目的数据
+    const currentQ = currentQuestion.value
+    if (currentQ) {
+      console.log('🔍 当前题目数据检查:', {
+        questionId: currentQ.question_id,
+        hasNote: !!userNotes.value[currentQ.question_id],
+        hasTranslation: !!translations.value[currentQ.question_id],
+        hasQuestionHighlights: !!questionHighlights.value[currentQ.question_id],
+        hasOptionHighlights: !!optionHighlights.value[currentQ.question_id],
+        noteContent: userNotes.value[currentQ.question_id],
+        translationContent: translations.value[currentQ.question_id]
+      })
+    }
   } catch (error) {
     console.error('加载题目失败:', error)
     console.error('错误详情:', {
@@ -474,6 +472,10 @@ const applyFilters = () => {
   currentQuestionIndex.value = 0
   selectedAnswer.value = answers.value[currentQuestion.value?.question_id] || ''
   
+  // 加载当前题目的笔记和翻译
+  loadCurrentNote()
+  loadCurrentTranslation()
+  
   // 调试信息
   console.log('筛选后的题目数量:', filtered.length)
   console.log('筛选后的题目索引范围:', filtered.map((q, i) => `${i + 1}: ${q.question_id}`).slice(0, 10))
@@ -486,6 +488,10 @@ const clearFilters = () => {
   filteredQuestions.value = questions.value
   currentQuestionIndex.value = 0
   selectedAnswer.value = answers.value[currentQuestion.value?.question_id] || ''
+  
+  // 加载当前题目的笔记和翻译
+  loadCurrentNote()
+  loadCurrentTranslation()
 }
 
 const onPartChange = () => {
@@ -2485,10 +2491,10 @@ onMounted(async () => {
 
 .option-item.selected {
   border-color: #667eea;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  background: white;
+  color: #333;
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
 }
 
 .option-label {
@@ -2506,8 +2512,8 @@ onMounted(async () => {
 }
 
 .option-item.selected .option-label {
-  background: white;
-  color: #667eea;
+  background: #667eea;
+  color: white;
 }
 
 .option-text {

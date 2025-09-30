@@ -1,16 +1,17 @@
 {
   "userId": "default_user",
-  "lastUpdated": "2025-09-30T02:43:12.812Z",
+  "lastUpdated": "2025-09-30T03:39:45.937Z",
   "answers": {
     "758501951": "C"
   },
   "notes": {
+    "94815985": "sudo apt update\nsudo apt install -y nginx\nsudo systemctl start nginx\nsudo systemctl enable nginx\nsudo systemctl status nginx",
     "94850128": "1111",
-    "758501951": ""
+    "758501951": "题干关键词\nindividual taxpayers → 个人纳税人\nfigure → 计算\nestimated tax → 预估税\n➡️ 只要锁定 “计算预估税” 这个核心点。\n选项关键词\nForm 1040-V → Voucher（付款凭单），关键字是 Voucher，不是算税的。\nSchedule SE → Self-Employment tax（自雇税），关键词 Self-Employment，跟预估税无关。\nForm 1040-ES → Estimated Tax（预估税），关键词 Estimated，直接命中题干。✅\nForm 1040-SR → Senior（老年人），关键词 Senior，只是老年人用的报税表。"
   },
   "translations": {
     "94850128": "2222",
-    "758501951": ""
+    "758501951": "题干关键词\nindividual taxpayers → 个人纳税人\nfigure → 计算\nestimated tax → 预估税\n➡️ 只要锁定 “计算预估税” 这个核心点。\n选项关键词\nForm 1040-V → Voucher（付款凭单），关键字是 Voucher，不是算税的。\nSchedule SE → Self-Employment tax（自雇税），关键词 Self-Employment，跟预估税无关。\nForm 1040-ES → Estimated Tax（预估税），关键词 Estimated，直接命中题干。✅\nForm 1040-SR → Senior（老年人），关键词 Senior，只是老年人用的报税表。"
   },
   "questionHighlights": {
     "94850128": [
@@ -24,6 +25,19 @@
     "758501951": []
   },
   "optionHighlights": {
-    "758501951": []
+    "758501951": [
+      {
+        "id": 1759203575290,
+        "text": "monetary",
+        "color": "green",
+        "timestamp": "2025-09-30T03:39:35.290Z"
+      },
+      {
+        "id": 1759203585925,
+        "text": "practice",
+        "color": "pink",
+        "timestamp": "2025-09-30T03:39:45.925Z"
+      }
+    ]
   }
 }

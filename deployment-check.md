@@ -105,3 +105,4 @@ curl https://gogoea.com/api/health
 - 通过Nginx的API应该返回相同结果
 - 登录API应该接受admin/admin和bobchina/bobchina
 
+
