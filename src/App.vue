@@ -29,6 +29,12 @@ const translationHasChanges = ref(false)
 const showTranslation = ref(false)
 const serverStatus = ref('checking') // 'checking', 'online', 'offline'
 const serverError = ref('')
+const isLoggedIn = ref(false)
+const showLogin = ref(true)
+const loginUsername = ref('')
+const loginPassword = ref('')
+const loginError = ref('')
+const userId = ref('default_user')
 
 // 计算属性
 const currentQuestion = computed(() => filteredQuestions.value[currentQuestionIndex.value])
@@ -102,6 +108,8 @@ const loadQuestions = async () => {
     filteredQuestions.value = questions.value
     
     console.log(`成功加载 ${questions.value.length} 道题目`)
+    console.log('questions.value:', questions.value)
+    console.log('filteredQuestions.value:', filteredQuestions.value)
     
     // 加载保存的数据
     await loadHighlights()
@@ -166,6 +174,78 @@ const checkServerStatus = async () => {
     serverError.value = error.message
     console.error('❌ 后端服务器连接失败:', error.message)
   }
+}
+
+// 登录验证
+const login = async () => {
+  if (!loginUsername.value || !loginPassword.value) {
+    loginError.value = 'Please enter username and password'
+    return
+  }
+  
+  console.log('🔄 开始登录...', { username: loginUsername.value, password: loginPassword.value })
+  console.log('API_BASE:', API_BASE)
+  
+  try {
+    const response = await fetch(`${API_BASE}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: loginUsername.value,
+        password: loginPassword.value
+      })
+    })
+    
+    console.log('📡 登录响应:', { status: response.status, ok: response.ok })
+    
+    if (response.ok) {
+      const result = await response.json()
+      console.log('📄 登录结果:', result)
+      
+      if (result.success) {
+        isLoggedIn.value = true
+        showLogin.value = false
+        userId.value = loginUsername.value
+        loginError.value = ''
+        // 保存登录状态
+        const userData = { username: loginUsername.value }
+        localStorage.setItem('quiz-user', JSON.stringify(userData))
+        console.log('✅ Login successful, saved to localStorage:', userData)
+        console.log('localStorage content:', localStorage.getItem('quiz-user'))
+        // 登录成功后加载数据
+        await loadQuestions()
+      } else {
+        loginError.value = result.message || 'Invalid credentials'
+        console.log('❌ 登录失败:', result.message)
+      }
+    } else {
+      loginError.value = 'Login failed. Please try again.'
+      console.log('❌ HTTP错误:', response.status)
+    }
+  } catch (error) {
+    loginError.value = 'Network error. Please try again.'
+    console.error('❌ 登录错误:', error)
+  }
+}
+
+// 登出
+const logout = () => {
+  isLoggedIn.value = false
+  showLogin.value = true
+  userId.value = 'default_user'
+  loginUsername.value = ''
+  loginPassword.value = ''
+  loginError.value = ''
+  // 清除登录状态
+  localStorage.removeItem('quiz-user')
+  // 清除所有数据
+  answers.value = {}
+  userNotes.value = {}
+  translations.value = {}
+  questionHighlights.value = {}
+  optionHighlights.value = {}
 }
 
 // 服务器API调用方法
@@ -427,6 +507,11 @@ const resetQuiz = () => {
 }
 
 const selectAnswer = (option) => {
+  if (!isLoggedIn.value) {
+    alert('Please login to select answers.')
+    return
+  }
+  
   selectedAnswer.value = option
   answers.value[currentQuestion.value.question_id] = option
   saveAnswers()
@@ -502,6 +587,11 @@ const handleTextSelection = (event) => {
 }
 
 const addHighlight = async (color) => {
+  if (!isLoggedIn.value) {
+    alert('Please login to add highlights.')
+    return
+  }
+  
   if (!selectedText.value) return
   
   const questionId = currentQuestion.value?.question_id
@@ -608,6 +698,11 @@ const updateNote = () => {
 }
 
 const saveNote = async () => {
+  if (!isLoggedIn.value) {
+    alert('Please login to save notes.')
+    return
+  }
+  
   const questionId = currentQuestion.value?.question_id
   if (!questionId) return
   
@@ -647,6 +742,11 @@ const updateTranslation = () => {
 }
 
 const saveTranslation = async () => {
+  if (!isLoggedIn.value) {
+    alert('Please login to save analysis.')
+    return
+  }
+  
   const questionId = currentQuestion.value?.question_id
   if (!questionId) return
   
@@ -685,16 +785,36 @@ onMounted(async () => {
   // 首先检查服务器状态
   await checkServerStatus()
   
-  // 然后加载题目
-  await loadQuestions()
+  // 检查是否有保存的登录状态
+  const savedUser = localStorage.getItem('quiz-user')
+  if (savedUser) {
+    try {
+      const userData = JSON.parse(savedUser)
+      isLoggedIn.value = true
+      showLogin.value = false
+      userId.value = userData.username
+      console.log('✅ 恢复登录状态:', userData.username)
+      // 登录成功后加载数据
+      await loadQuestions()
+    } catch (error) {
+      console.error('Failed to restore login state:', error)
+      // 如果恢复失败，清除无效的登录状态
+      localStorage.removeItem('quiz-user')
+    }
+  } else {
+    // 没有保存的登录状态，显示登录界面
+    console.log('ℹ️ 没有保存的登录状态，显示登录界面')
+  }
   
   // 页面离开时自动保存笔记和翻译
   window.addEventListener('beforeunload', () => {
-    if (noteHasChanges.value) {
-      saveNote()
-    }
-    if (translationHasChanges.value) {
-      saveTranslation()
+    if (isLoggedIn.value) {
+      if (noteHasChanges.value) {
+        saveNote()
+      }
+      if (translationHasChanges.value) {
+        saveTranslation()
+      }
     }
   })
   
@@ -705,8 +825,51 @@ onMounted(async () => {
 
 <template>
   <div class="quiz-container">
-    <!-- 头部 -->
-    <header class="quiz-header">
+    <!-- 登录界面 -->
+    <div class="login-modal" v-if="showLogin">
+      <div class="login-content">
+        <div class="login-header">
+          <h2>Login Required</h2>
+          <p>Please enter your credentials to access the quiz system</p>
+        </div>
+        <div class="login-form">
+          <div class="form-group">
+            <label for="username">Username:</label>
+            <input 
+              type="text" 
+              id="username" 
+              v-model="loginUsername" 
+              placeholder="Enter username"
+              @keyup.enter="login"
+            >
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input 
+              type="password" 
+              id="password" 
+              v-model="loginPassword" 
+              placeholder="Enter password"
+              @keyup.enter="login"
+            >
+          </div>
+          <div class="login-error" v-if="loginError">
+            {{ loginError }}
+          </div>
+          <button class="login-btn" @click="login" :disabled="!loginUsername || !loginPassword">
+            Login
+          </button>
+        </div>
+        <div class="login-tips">
+          <small>💡 Contact administrator for login credentials</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div v-if="isLoggedIn">
+      <!-- 头部 -->
+      <header class="quiz-header">
       <div class="header-controls">
         <div class="filter-controls">
           <button class="filter-toggle-btn" @click="showFilters = !showFilters">
@@ -737,6 +900,10 @@ onMounted(async () => {
             {{ serverStatus === 'checking' ? '🔄' : serverStatus === 'online' ? '✅' : '❌' }}
             {{ serverStatus === 'checking' ? 'Checking' : serverStatus === 'online' ? 'Server Online' : 'Server Offline' }}
           </span>
+        </div>
+        <div class="user-controls">
+          <span class="user-info">Welcome, {{ userId }}</span>
+          <button class="logout-btn" @click="logout">Logout</button>
         </div>
       </div>
     </header>
@@ -1041,6 +1208,7 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
@@ -1054,6 +1222,149 @@ onMounted(async () => {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-sizing: border-box;
   overflow: hidden;
+}
+
+/* 登录界面样式 */
+.login-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.login-content {
+  background: white;
+  border-radius: 15px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-header h2 {
+  color: #333;
+  margin: 0 0 10px 0;
+  font-size: 1.8em;
+  font-weight: 600;
+}
+
+.login-header p {
+  color: #666;
+  margin: 0 0 30px 0;
+  font-size: 1em;
+}
+
+.login-form {
+  text-align: left;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1em;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.login-error {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 0.9em;
+  border: 1px solid #f5c6cb;
+}
+
+.login-btn {
+  width: 100%;
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover:not(:disabled) {
+  background: #5a6fd8;
+  transform: translateY(-2px);
+}
+
+.login-btn:disabled {
+  background: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-tips {
+  margin-top: 20px;
+}
+
+.login-tips small {
+  color: #6c757d;
+  font-size: 0.85em;
+}
+
+/* 用户控制区域 */
+.user-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-info {
+  color: #333;
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+.logout-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #c82333;
+  transform: translateY(-1px);
 }
 
 .quiz-header {

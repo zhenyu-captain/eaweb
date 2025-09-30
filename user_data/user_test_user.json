@@ -1,19 +1,58 @@
 {
   "userId": "test_user",
-  "lastUpdated": "2025-09-25T06:49:38.208Z",
+  "lastUpdated": "2025-09-30T02:45:09.266Z",
   "answers": {
-    "q1": "A"
+    "q1": "A",
+    "q2": "B"
   },
   "notes": {
-    "q1": "测试笔记"
+    "q1": "更新后的题目1笔记",
+    "q2": "这是题目2的笔记"
   },
   "translations": {
-    "q1": "测试翻译"
+    "q1": "这是题目1的翻译",
+    "q2": "这是题目2的翻译"
   },
   "questionHighlights": {
-    "q1": []
+    "q1": [
+      {
+        "id": 1,
+        "text": "重要",
+        "color": "yellow",
+        "timestamp": "2025-09-30T02:45:09.226Z"
+      },
+      {
+        "id": 5,
+        "text": "新增高亮",
+        "color": "orange",
+        "timestamp": "2025-09-30T02:45:09.264Z"
+      }
+    ],
+    "q2": [
+      {
+        "id": 2,
+        "text": "关键",
+        "color": "green",
+        "timestamp": "2025-09-30T02:45:09.226Z"
+      }
+    ]
   },
   "optionHighlights": {
-    "q1": []
+    "q1": [
+      {
+        "id": 3,
+        "text": "选项A",
+        "color": "blue",
+        "timestamp": "2025-09-30T02:45:09.226Z"
+      }
+    ],
+    "q2": [
+      {
+        "id": 4,
+        "text": "选项B",
+        "color": "pink",
+        "timestamp": "2025-09-30T02:45:09.226Z"
+      }
+    ]
   }
 }

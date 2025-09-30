@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login State Test</title>
+</head>
+<body>
+    <h1>Login State Test</h1>
+    <div id="status"></div>
+    <button onclick="testLoginState()">Test Login State</button>
+    <button onclick="clearLoginState()">Clear Login State</button>
+    <button onclick="setLoginState()">Set Login State</button>
+    
+    <script>
+        function testLoginState() {
+            const savedUser = localStorage.getItem('quiz-user');
+            const status = document.getElementById('status');
+            
+            if (savedUser) {
+                try {
+                    const userData = JSON.parse(savedUser);
+                    status.innerHTML = `✅ 找到保存的登录状态: ${JSON.stringify(userData)}`;
+                } catch (error) {
+                    status.innerHTML = `❌ 解析登录状态失败: ${error.message}`;
+                }
+            } else {
+                status.innerHTML = '❌ 没有找到保存的登录状态';
+            }
+        }
+        
+        function clearLoginState() {
+            localStorage.removeItem('quiz-user');
+            document.getElementById('status').innerHTML = '✅ 登录状态已清除';
+        }
+        
+        function setLoginState() {
+            localStorage.setItem('quiz-user', JSON.stringify({ username: 'admin' }));
+            document.getElementById('status').innerHTML = '✅ 登录状态已设置 (admin)';
+        }
+    </script>
+</body>
+</html>
+

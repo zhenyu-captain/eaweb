@@ -1,91 +1,152 @@
-// 测试数据持久性
-const API_BASE = 'http://localhost:3001/api'
-
-async function testDataPersistence() {
-  console.log('测试数据持久性...')
+// 测试数据持久化功能
+const testDataPersistence = async () => {
+  const baseUrl = 'http://localhost:3001/api'
   
-  const userId = 'test_persistence'
+  console.log('🧪 测试数据持久化功能...')
   
-  try {
-    // 1. 保存完整数据
-    const fullData = {
-      userId: userId,
-      data: {
-        answers: { 'q1': 'A', 'q2': 'B' },
-        notes: { 'q1': '笔记1', 'q2': '笔记2' },
-        translations: { 'q1': '翻译1', 'q2': '翻译2' },
-        questionHighlights: { 'q1': [{ id: 1, text: '高亮1', color: 'yellow' }] },
-        optionHighlights: { 'q1': [{ id: 2, text: '选项高亮', color: 'green' }] }
-      }
+  // 测试数据
+  const testData = {
+    answers: { 'q1': 'A', 'q2': 'B' },
+    notes: { 'q1': '这是题目1的笔记', 'q2': '这是题目2的笔记' },
+    translations: { 'q1': '这是题目1的翻译', 'q2': '这是题目2的翻译' },
+    questionHighlights: { 
+      'q1': [{ id: 1, text: '重要', color: 'yellow', timestamp: new Date().toISOString() }],
+      'q2': [{ id: 2, text: '关键', color: 'green', timestamp: new Date().toISOString() }]
+    },
+    optionHighlights: { 
+      'q1': [{ id: 3, text: '选项A', color: 'blue', timestamp: new Date().toISOString() }],
+      'q2': [{ id: 4, text: '选项B', color: 'pink', timestamp: new Date().toISOString() }]
     }
-    
-    console.log('1. 保存完整数据...')
-    const saveResponse = await fetch(`${API_BASE}/save-data`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(fullData)
-    })
-    const saveResult = await saveResponse.json()
-    console.log('✅ 保存结果:', saveResult)
-    
-    // 2. 模拟只更新笔记（应该保留其他数据）
-    const updateNotesData = {
-      userId: userId,
-      data: {
-        answers: { 'q1': 'A', 'q2': 'B' },
-        notes: { 'q1': '更新的笔记1', 'q2': '更新的笔记2' },
-        translations: { 'q1': '翻译1', 'q2': '翻译2' },
-        questionHighlights: { 'q1': [{ id: 1, text: '高亮1', color: 'yellow' }] },
-        optionHighlights: { 'q1': [{ id: 2, text: '选项高亮', color: 'green' }] }
-      }
-    }
-    
-    console.log('2. 更新笔记（保留其他数据）...')
-    const updateResponse = await fetch(`${API_BASE}/save-data`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updateNotesData)
-    })
-    const updateResult = await updateResponse.json()
-    console.log('✅ 更新结果:', updateResult)
-    
-    // 3. 验证数据完整性
-    console.log('3. 验证数据完整性...')
-    const getResponse = await fetch(`${API_BASE}/get-data/${userId}`)
-    const getData = await getResponse.json()
-    
-    const data = getData.data
-    console.log('📊 验证结果:')
-    console.log('  - 答案数量:', Object.keys(data.answers || {}).length)
-    console.log('  - 笔记数量:', Object.keys(data.notes || {}).length)
-    console.log('  - 翻译数量:', Object.keys(data.translations || {}).length)
-    console.log('  - 题目高亮数量:', Object.keys(data.questionHighlights || {}).length)
-    console.log('  - 选项高亮数量:', Object.keys(data.optionHighlights || {}).length)
-    
-    // 检查具体数据
-    if (data.notes && data.notes.q1 === '更新的笔记1') {
-      console.log('✅ 笔记更新成功')
-    } else {
-      console.log('❌ 笔记更新失败')
-    }
-    
-    if (data.questionHighlights && data.questionHighlights.q1 && data.questionHighlights.q1.length > 0) {
-      console.log('✅ 题目高亮保留成功')
-    } else {
-      console.log('❌ 题目高亮丢失')
-    }
-    
-    if (data.optionHighlights && data.optionHighlights.q1 && data.optionHighlights.q1.length > 0) {
-      console.log('✅ 选项高亮保留成功')
-    } else {
-      console.log('❌ 选项高亮丢失')
-    }
-    
-    console.log('🎉 数据持久性测试完成！')
-    
-  } catch (error) {
-    console.error('❌ 测试失败:', error.message)
   }
+  
+  // 1. 测试保存数据
+  console.log('📝 测试保存数据...')
+  try {
+    const saveResponse = await fetch(`${baseUrl}/save-data`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: 'test_user',
+        data: testData
+      })
+    })
+    
+    if (saveResponse.ok) {
+      const saveResult = await saveResponse.json()
+      console.log('✅ 数据保存成功:', saveResult)
+    } else {
+      console.error('❌ 数据保存失败:', saveResponse.status)
+      return
+    }
+  } catch (error) {
+    console.error('❌ 保存数据时出错:', error.message)
+    return
+  }
+  
+  // 2. 测试加载数据
+  console.log('📖 测试加载数据...')
+  try {
+    const loadResponse = await fetch(`${baseUrl}/get-data/test_user`)
+    
+    if (loadResponse.ok) {
+      const loadResult = await loadResponse.json()
+      console.log('✅ 数据加载成功:', loadResult)
+      
+      // 验证数据完整性
+      const loadedData = loadResult.data
+      console.log('🔍 验证数据完整性:')
+      console.log('- 答案数量:', Object.keys(loadedData.answers || {}).length)
+      console.log('- 笔记数量:', Object.keys(loadedData.notes || {}).length)
+      console.log('- 翻译数量:', Object.keys(loadedData.translations || {}).length)
+      console.log('- 题目高亮数量:', Object.keys(loadedData.questionHighlights || {}).length)
+      console.log('- 选项高亮数量:', Object.keys(loadedData.optionHighlights || {}).length)
+      
+      // 验证具体数据
+      if (loadedData.answers?.q1 === 'A' && loadedData.answers?.q2 === 'B') {
+        console.log('✅ 答案数据正确')
+      } else {
+        console.log('❌ 答案数据不正确')
+      }
+      
+      if (loadedData.notes?.q1 === '这是题目1的笔记') {
+        console.log('✅ 笔记数据正确')
+      } else {
+        console.log('❌ 笔记数据不正确')
+      }
+      
+      if (loadedData.questionHighlights?.q1?.length > 0) {
+        console.log('✅ 题目高亮数据正确')
+      } else {
+        console.log('❌ 题目高亮数据不正确')
+      }
+      
+    } else {
+      console.error('❌ 数据加载失败:', loadResponse.status)
+    }
+  } catch (error) {
+    console.error('❌ 加载数据时出错:', error.message)
+  }
+  
+  // 3. 测试更新部分数据
+  console.log('🔄 测试更新部分数据...')
+  try {
+    const updateData = {
+      ...testData,
+      notes: { ...testData.notes, 'q1': '更新后的题目1笔记' },
+      questionHighlights: { 
+        ...testData.questionHighlights, 
+        'q1': [...testData.questionHighlights.q1, { 
+          id: 5, 
+          text: '新增高亮', 
+          color: 'orange', 
+          timestamp: new Date().toISOString() 
+        }]
+      }
+    }
+    
+    const updateResponse = await fetch(`${baseUrl}/save-data`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: 'test_user',
+        data: updateData
+      })
+    })
+    
+    if (updateResponse.ok) {
+      console.log('✅ 数据更新成功')
+      
+      // 验证更新后的数据
+      const verifyResponse = await fetch(`${baseUrl}/get-data/test_user`)
+      if (verifyResponse.ok) {
+        const verifyResult = await verifyResponse.json()
+        const updatedData = verifyResult.data
+        
+        if (updatedData.notes?.q1 === '更新后的题目1笔记') {
+          console.log('✅ 笔记更新正确')
+        } else {
+          console.log('❌ 笔记更新不正确')
+        }
+        
+        if (updatedData.questionHighlights?.q1?.length === 2) {
+          console.log('✅ 高亮更新正确')
+        } else {
+          console.log('❌ 高亮更新不正确')
+        }
+      }
+    } else {
+      console.error('❌ 数据更新失败:', updateResponse.status)
+    }
+  } catch (error) {
+    console.error('❌ 更新数据时出错:', error.message)
+  }
+  
+  console.log('🎉 数据持久化测试完成!')
 }
 
-testDataPersistence()
+// 运行测试
+testDataPersistence().catch(console.error)

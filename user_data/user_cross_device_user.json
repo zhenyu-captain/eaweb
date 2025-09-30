@@ -1,0 +1,45 @@
+{
+  "userId": "cross_device_user",
+  "lastUpdated": "2025-09-30T02:47:18.786Z",
+  "answers": {
+    "q1": "A",
+    "q2": "B"
+  },
+  "notes": {
+    "q1": "设备1的笔记",
+    "q2": "设备1的另一个笔记",
+    "q3": "设备2添加的笔记"
+  },
+  "translations": {
+    "q1": "设备1的翻译",
+    "q2": "设备1的另一个翻译"
+  },
+  "questionHighlights": {
+    "q1": [
+      {
+        "id": 1,
+        "text": "设备1高亮",
+        "color": "yellow",
+        "timestamp": "2025-09-30T02:47:18.757Z"
+      }
+    ],
+    "q2": [
+      {
+        "id": 3,
+        "text": "设备2高亮",
+        "color": "green",
+        "timestamp": "2025-09-30T02:47:18.785Z"
+      }
+    ]
+  },
+  "optionHighlights": {
+    "q1": [
+      {
+        "id": 2,
+        "text": "设备1选项高亮",
+        "color": "blue",
+        "timestamp": "2025-09-30T02:47:18.757Z"
+      }
+    ]
+  }
+}

@@ -11,6 +11,12 @@ const app = express()
 const PORT = process.env.PORT || 3001
 const DATA_DIR = path.join(__dirname, 'user_data')
 
+// 用户凭据（简单硬编码，生产环境应使用数据库）
+const users = {
+  'admin': 'bobchina',
+  'bobchina': 'bobchina'
+}
+
 // 确保数据目录存在
 async function ensureDataDir() {
   try {
@@ -114,6 +120,39 @@ app.get('/api/users', async (req, res) => {
   } catch (error) {
     console.error('获取用户列表失败:', error)
     res.status(500).json({ error: '获取用户列表失败' })
+  }
+})
+
+// 登录验证
+app.post('/api/login', (req, res) => {
+  try {
+    const { username, password } = req.body
+    
+    if (!username || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Username and password are required' 
+      })
+    }
+    
+    if (users[username] && users[username] === password) {
+      res.json({ 
+        success: true, 
+        message: 'Login successful',
+        username: username
+      })
+    } else {
+      res.status(401).json({ 
+        success: false, 
+        message: 'Invalid username or password' 
+      })
+    }
+  } catch (error) {
+    console.error('Login error:', error)
+    res.status(500).json({ 
+      success: false, 
+      message: 'Login failed' 
+    })
   }
 })
 

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Login Test</title>
+</head>
+<body>
+    <h1>Simple Login Test</h1>
+    <div id="result"></div>
+    
+    <script>
+        async function testLogin() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin'
+                    })
+                });
+                
+                const data = await response.json();
+                result.innerHTML = 'Response: ' + JSON.stringify(data, null, 2);
+                
+                if (data.success) {
+                    // 测试localStorage
+                    localStorage.setItem('quiz-user', JSON.stringify({ username: 'admin' }));
+                    result.innerHTML += '<br><br>localStorage saved: ' + localStorage.getItem('quiz-user');
+                }
+            } catch (error) {
+                result.innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+    
+    <button onclick="testLogin()">Test Login</button>
+</body>
+</html>
+

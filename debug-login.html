@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Login</title>
+</head>
+<body>
+    <h1>Debug Login State</h1>
+    <div id="output"></div>
+    
+    <script>
+        function log(message) {
+            const output = document.getElementById('output');
+            output.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+        
+        // 检查localStorage
+        function checkLocalStorage() {
+            const savedUser = localStorage.getItem('quiz-user');
+            if (savedUser) {
+                try {
+                    const userData = JSON.parse(savedUser);
+                    log('✅ Found saved login: ' + JSON.stringify(userData));
+                } catch (error) {
+                    log('❌ Error parsing saved login: ' + error.message);
+                }
+            } else {
+                log('❌ No saved login found');
+            }
+        }
+        
+        // 测试设置登录状态
+        function setLogin() {
+            localStorage.setItem('quiz-user', JSON.stringify({ username: 'admin' }));
+            log('✅ Set login state');
+            checkLocalStorage();
+        }
+        
+        // 测试清除登录状态
+        function clearLogin() {
+            localStorage.removeItem('quiz-user');
+            log('✅ Cleared login state');
+            checkLocalStorage();
+        }
+        
+        // 页面加载时检查
+        window.onload = function() {
+            log('Page loaded');
+            checkLocalStorage();
+        };
+    </script>
+    
+    <button onclick="checkLocalStorage()">Check Login State</button>
+    <button onclick="setLogin()">Set Login</button>
+    <button onclick="clearLogin()">Clear Login</button>
+</body>
+</html>
+

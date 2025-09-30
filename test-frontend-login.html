@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Login Test</title>
+</head>
+<body>
+    <h1>Frontend Login Test</h1>
+    <div id="output"></div>
+    
+    <script>
+        function log(message) {
+            const output = document.getElementById('output');
+            output.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+        
+        async function testLogin() {
+            log('开始测试登录...');
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin'
+                    })
+                });
+                
+                log('响应状态: ' + response.status);
+                log('响应OK: ' + response.ok);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('响应数据: ' + JSON.stringify(result));
+                    
+                    if (result.success) {
+                        log('✅ 登录成功');
+                        
+                        // 测试localStorage保存
+                        const userData = { username: 'admin' };
+                        localStorage.setItem('quiz-user', JSON.stringify(userData));
+                        log('✅ 保存到localStorage: ' + JSON.stringify(userData));
+                        
+                        // 测试localStorage读取
+                        const savedUser = localStorage.getItem('quiz-user');
+                        log('✅ 从localStorage读取: ' + savedUser);
+                        
+                        if (savedUser) {
+                            try {
+                                const parsedUser = JSON.parse(savedUser);
+                                log('✅ 解析成功: ' + JSON.stringify(parsedUser));
+                            } catch (error) {
+                                log('❌ 解析失败: ' + error.message);
+                            }
+                        }
+                    } else {
+                        log('❌ 登录失败: ' + result.message);
+                    }
+                } else {
+                    log('❌ HTTP错误: ' + response.status);
+                }
+            } catch (error) {
+                log('❌ 网络错误: ' + error.message);
+            }
+        }
+        
+        function clearStorage() {
+            localStorage.removeItem('quiz-user');
+            log('✅ 清除localStorage');
+        }
+        
+        function checkStorage() {
+            const savedUser = localStorage.getItem('quiz-user');
+            if (savedUser) {
+                log('✅ 找到保存的用户: ' + savedUser);
+            } else {
+                log('❌ 没有找到保存的用户');
+            }
+        }
+    </script>
+    
+    <button onclick="testLogin()">Test Login</button>
+    <button onclick="clearStorage()">Clear Storage</button>
+    <button onclick="checkStorage()">Check Storage</button>
+</body>
+</html>
+
