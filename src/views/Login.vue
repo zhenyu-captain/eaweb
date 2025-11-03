@@ -10,6 +10,11 @@ const loginPassword = ref('')
 const loginError = ref('')
 const serverStatus = ref('checking') // 'checking', 'online', 'offline'
 const serverError = ref('')
+const isRegisterMode = ref(false)
+const registerUsername = ref('')
+const registerPassword = ref('')
+const registerConfirmPassword = ref('')
+const registerError = ref('')
 
 // 服务器API调用
 const API_BASE = import.meta.env.DEV 
@@ -83,13 +88,86 @@ const login = async () => {
         console.log('❌ 登录失败:', result.message)
       }
     } else {
-      loginError.value = 'Login failed. Please try again.'
+      const result = await response.json().catch(() => ({}))
+      loginError.value = result.message || 'Login failed. Please try again.'
       console.log('❌ HTTP错误:', response.status)
     }
   } catch (error) {
     loginError.value = 'Network error. Please try again.'
     console.error('❌ 登录错误:', error)
   }
+}
+
+// 用户注册
+const register = async () => {
+  // 清除错误信息
+  registerError.value = ''
+  
+  // 验证输入
+  if (!registerUsername.value || !registerPassword.value || !registerConfirmPassword.value) {
+    registerError.value = 'Please fill in all fields'
+    return
+  }
+  
+  if (registerUsername.value.length < 3 || registerUsername.value.length > 20) {
+    registerError.value = 'Username must be between 3 and 20 characters'
+    return
+  }
+  
+  if (registerPassword.value.length < 6) {
+    registerError.value = 'Password must be at least 6 characters'
+    return
+  }
+  
+  if (registerPassword.value !== registerConfirmPassword.value) {
+    registerError.value = 'Passwords do not match'
+    return
+  }
+  
+  console.log('🔄 开始注册...', { username: registerUsername.value })
+  
+  try {
+    const response = await fetch(`${API_BASE}/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: registerUsername.value,
+        password: registerPassword.value
+      })
+    })
+    
+    const result = await response.json()
+    console.log('📡 注册响应:', result)
+    
+    if (response.ok && result.success) {
+      registerError.value = ''
+      // 注册成功后自动登录
+      loginUsername.value = registerUsername.value
+      loginPassword.value = registerPassword.value
+      isRegisterMode.value = false
+      await login()
+    } else {
+      registerError.value = result.message || 'Registration failed. Please try again.'
+      console.log('❌ 注册失败:', result.message)
+    }
+  } catch (error) {
+    registerError.value = 'Network error. Please try again.'
+    console.error('❌ 注册错误:', error)
+  }
+}
+
+// 切换登录/注册模式
+const toggleMode = () => {
+  isRegisterMode.value = !isRegisterMode.value
+  loginError.value = ''
+  registerError.value = ''
+  loginUsername.value = ''
+  loginPassword.value = ''
+  registerUsername.value = ''
+  registerPassword.value = ''
+  registerConfirmPassword.value = ''
 }
 
 // 生命周期
@@ -124,10 +202,12 @@ onMounted(async () => {
     <div class="login-modal">
       <div class="login-content">
         <div class="login-header">
-          <h2>Login Required</h2>
-          <p>Please enter your credentials to access the quiz system</p>
+          <h2>{{ isRegisterMode ? 'Sign Up' : 'Login Required' }}</h2>
+          <p>{{ isRegisterMode ? 'Create a new account to access the system' : 'Please enter your credentials to access the quiz system' }}</p>
         </div>
-        <div class="login-form">
+        
+        <!-- 登录表单 -->
+        <div class="login-form" v-if="!isRegisterMode">
           <div class="form-group">
             <label for="username">Username:</label>
             <input 
@@ -155,8 +235,60 @@ onMounted(async () => {
             Login
           </button>
         </div>
-        <div class="login-tips">
-          <small>💡 Contact administrator for login credentials</small>
+        
+        <!-- 注册表单 -->
+        <div class="login-form" v-else>
+          <div class="form-group">
+            <label for="register-username">Username:</label>
+            <input 
+              type="text" 
+              id="register-username" 
+              v-model="registerUsername" 
+              placeholder="Enter username (3-20 characters)"
+              @keyup.enter="register"
+            >
+          </div>
+          <div class="form-group">
+            <label for="register-password">Password:</label>
+            <input 
+              type="password" 
+              id="register-password" 
+              v-model="registerPassword" 
+              placeholder="Enter password (min 6 characters)"
+              @keyup.enter="register"
+            >
+          </div>
+          <div class="form-group">
+            <label for="register-confirm">Confirm Password:</label>
+            <input 
+              type="password" 
+              id="register-confirm" 
+              v-model="registerConfirmPassword" 
+              placeholder="Re-enter password"
+              @keyup.enter="register"
+            >
+          </div>
+          <div class="login-error" v-if="registerError">
+            {{ registerError }}
+          </div>
+          <button 
+            class="login-btn" 
+            @click="register" 
+            :disabled="!registerUsername || !registerPassword || !registerConfirmPassword"
+          >
+            Sign Up
+          </button>
+        </div>
+        
+        <!-- 切换登录/注册 -->
+        <div class="mode-switch">
+          <button class="switch-btn" @click="toggleMode">
+            {{ isRegisterMode ? 'Already have an account? Login' : 'Don\'t have an account? Sign Up' }}
+          </button>
+        </div>
+        
+        <div class="login-tips" v-if="!isRegisterMode">
+          <small>💡 Click the Sign Up button above to create a new account</small>
         </div>
         <div class="server-status">
           <span 
@@ -166,7 +298,7 @@ onMounted(async () => {
               'status-online': serverStatus === 'online',
               'status-offline': serverStatus === 'offline'
             }"
-            :title="serverError || '服务器状态'"
+            :title="serverError || 'Server Status'"
           >
             {{ serverStatus === 'checking' ? '🔄' : serverStatus === 'online' ? '✅' : '❌' }}
             {{ serverStatus === 'checking' ? 'Checking' : serverStatus === 'online' ? 'Server Online' : 'Server Offline' }}
@@ -333,6 +465,26 @@ onMounted(async () => {
   background: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
+}
+
+.mode-switch {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.switch-btn {
+  background: none;
+  border: none;
+  color: #667eea;
+  cursor: pointer;
+  font-size: 0.9em;
+  padding: 8px 12px;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.switch-btn:hover {
+  color: #5a6fd8;
 }
 </style>
 
