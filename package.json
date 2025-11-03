@@ -16,10 +16,11 @@
     "start": "npm run build && npm run server"
   },
   "dependencies": {
-    "vue": "^3.5.18",
-    "express": "^4.18.2",
+    "concurrently": "^8.2.2",
     "cors": "^2.8.5",
-    "concurrently": "^8.2.2"
+    "express": "^4.18.2",
+    "vue": "^3.5.18",
+    "vue-router": "^4.6.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.4",
